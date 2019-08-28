@@ -9,7 +9,7 @@
   "private": false,
   "bin": "bin/cli.js",
   "scripts": {
-    "start": "node -e \"require('./index.js')(['丑八怪'])\"",
+    "start": "node -e \"require('./index.js')(['丑八怪', '--verbose'])\"",
     "lint": "eslint --ext .js ./ --fix"
   },
   "husky": {
@@ -20,6 +20,9 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "commander": "^3.0.0",
+    "fs-extra": "^8.1.0",
+    "inquirer": "^7.0.0",
+    "minimist": "^1.2.0",
     "ora": "^3.4.0",
     "prettier": "^1.18.2",
     "progress": "^2.0.3",

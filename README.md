@@ -2,9 +2,24 @@
 借助现有的一些全网音乐搜索网站，利用`Puppeteer`进行爬虫搜索获取音乐信息后执行下载。
 
 ## 用法
-- `mp3-dl`, `mp3-dl -h` `mp3-dl --help` 打印帮助信息
-- `mp3-dl -v`, `mp3-dl --version` 显示当前版本
-- `mp3-dl 歌手/音乐 [-o /path/to/save] [-O https://muc.cheshirex.com] [-a default|mk|mm] [--with-lrc] [--verbose]` 搜索并下载音乐，`-o`指定下载目录，`-O`指定下载地址, `-a`指定下载适配器，`--with-lrc`同时下载歌词，`--verbose`显示详细信息
+- `[-h|--help]` 打印帮助信息
+- `[-v|--version]` 显示当前版本
+- `[-o|--output /path/to/save]` 下载保存位置
+- `[-O|--origin https://muc.cheshirex.com]` 下载网站来源
+- `[-a|--adapter default|mk|mm]` 适配器，根据网站决定
+- `[-c|--chrome /path/to/chrome]` 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
+- `[--with-lrc]` 同时下载歌词
+- `[--verbose]` 显示详细信息
+
+## 示例
+```bash
+# 打印帮助信息
+mp3-dl -h
+# 显示当前版本
+mp3-dl -v
+# 下载“丑八怪”的mp3和歌词到指定目录并打印详细信息
+mp3-dl 丑八怪 -o ~/Documents/Musics --write-lrc --verbose
+```
 
 ## 安装方法
 安装前请确认本机已安装Chrome浏览器
@@ -19,12 +34,23 @@ npm i -g mp3-dl
 
 ```json
 {
+  "chromePath": "/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome",
   "output": "/path/to/save",
   "origin": "https://muc.cheshirex.com",
   "adapter": "default",
   "downloadLRC": true,
   "verbose": true
 }
+```
+
+## 开发
+
+```shell
+# 安装依赖
+yarn
+
+# 运行
+yarn start
 ```
 
 ## 免责声明
