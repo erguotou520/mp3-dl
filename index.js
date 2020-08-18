@@ -38,8 +38,6 @@ module.exports = async function(args) {
     try {
       const list = await search(searchContent)
       // 没有搜索到数据
-      // 更新失败次数
-      require('./lib/sites').updateCount(searchContent)
       if (!list.length) {
         return spinner.warn('没有搜索到任何数据，请尝试修改搜索内容')
       } else {
