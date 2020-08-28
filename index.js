@@ -14,6 +14,13 @@ const argMap = {
   c: 'chrome'
 }
 
+function downloadSong(answers) {
+  answers.forEach(async r => {
+    const url = r.substring(r.indexOf('(') + 1, r.length - 1)
+    const file = fs.createWriteStream(`${r.substring(0, r.indexOf('('))}.mp3`)
+  })
+}
+
 // 根据命令行参数执行解析下载等操作
 module.exports = async function(args) {
   const argv = minimist(args)
@@ -45,13 +52,14 @@ module.exports = async function(args) {
         try {
           const answers = await inquirer.prompt([
             {
-              type: 'rawlist',
+              type: 'checkbox',
               name: 'select',
               message: '按空格键选择或取消你要下载的歌曲，支持多选',
-              choices: list.map(music => `${music.author}-${music.name}(${music.duration})`),
+              choices: list.map(music => `${music.author}-${music.title}(${music.url})`),
               default: 0
             }
           ])
+          downloadSong(answers.select)
         } catch (error) {
           // do nothing
         }
