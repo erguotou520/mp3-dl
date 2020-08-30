@@ -5,6 +5,9 @@ const chalk = require('chalk')
 const minimist = require('minimist')
 const ora = require('ora')
 const inquirer = require('inquirer')
+const fs = require('fs')
+const { ensureFileSync, ensureDirSync } = require('fs-extra')
+const request = require('request')
 
 // 命令参数简写map
 const argMap = {
@@ -14,10 +17,27 @@ const argMap = {
   c: 'chrome'
 }
 
-function downloadSong(answers) {
+async function downloadSong(answers) {
   answers.forEach(async r => {
-    const url = r.substring(r.indexOf('(') + 1, r.length - 1)
-    const file = fs.createWriteStream(`${r.substring(0, r.indexOf('('))}.mp3`)
+    let reg = new RegExp('\\(', 'g')
+    let result,
+      index = undefined
+    // 根据左括号(截取
+    while ((result = reg.exec(r)) != null) {
+      index = reg.lastIndex
+    }
+    if (index === undefined) {
+      return spinner.warn('音乐数据暂时无法下载')
+    }
+    const url = r.substring(index, r.length - 1)
+    const fileName = `./music/${r.substring(0, index)}.mp3`
+    // 创建目录
+    ensureDirSync(path.join(__dirname, '/music'))
+    // 创建文件名
+    ensureFileSync(fileName)
+    var readableStream = fs.createWriteStream(fileName)
+    // 管道pipe流入
+    request(url).pipe(readableStream)
   })
 }
 
