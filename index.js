@@ -31,7 +31,7 @@ async function downloadSong(answers) {
       return ora('音乐数据暂时无法下载').fail()
     }
     const url = r.substring(index, r.length - 1)
-    const filePath = `${config.output}/${r.substring(0, index-1)}.mp3`
+    const filePath = `${config.output}/${r.substring(0, index - 1)}.mp3`
     // 创建目录
     ensureDirSync(config.output)
     // 创建文件名
@@ -52,7 +52,7 @@ async function toPipe(url, filePath) {
       method: 'get',
       url,
       responseType: 'stream' // 服务器响应的数据类型
-    }).then( res => {
+    }).then(res => {
       res.data.pipe(readableStream)
       resolve()
     })
