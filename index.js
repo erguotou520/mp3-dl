@@ -7,7 +7,8 @@ const ora = require('ora')
 const inquirer = require('inquirer')
 const fs = require('fs')
 const { ensureFileSync, ensureDirSync } = require('fs-extra')
-const request = require('request')
+const axios = require('axios')
+const { config, mergeConfig } = require('./lib/config')
 
 // 命令参数简写map
 const argMap = {
@@ -27,17 +28,34 @@ async function downloadSong(answers) {
       index = reg.lastIndex
     }
     if (index === undefined) {
-      return spinner.warn('音乐数据暂时无法下载')
+      return ora('音乐数据暂时无法下载').fail()
     }
     const url = r.substring(index, r.length - 1)
-    const fileName = `./music/${r.substring(0, index)}.mp3`
+    const filePath = `${config.output}/${r.substring(0, index-1)}.mp3`
     // 创建目录
-    ensureDirSync(path.join(__dirname, '/music'))
+    ensureDirSync(config.output)
     // 创建文件名
-    ensureFileSync(fileName)
-    var readableStream = fs.createWriteStream(fileName)
+    ensureFileSync(filePath)
     // 管道pipe流入
-    request(url).pipe(readableStream)
+    await toPipe(url, filePath)
+    if (answers.indexOf(r) === answers.length - 1) {
+      ora('音乐下载成功').succeed()
+    }
+  })
+}
+
+async function toPipe(url, filePath) {
+  // url: music下载路径   filePath: 文件路径
+  return new Promise(resolve => {
+    var readableStream = fs.createWriteStream(filePath)
+    axios({
+      method: 'get',
+      url,
+      responseType: 'stream' // 服务器响应的数据类型
+    }).then( res => {
+      res.data.pipe(readableStream)
+      resolve()
+    })
   })
 }
 
@@ -58,7 +76,7 @@ module.exports = async function(args) {
     // 多搜索内容用空格拼接
     const searchContent = argv._.join(' ')
     // 初始化配置
-    require('./lib/config').mergeConfig(argv)
+    mergeConfig(argv)
     // 搜索
     const { search, loadMore } = require('./lib/search')
     const spinner = ora('搜索中...').start()

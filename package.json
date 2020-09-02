@@ -18,6 +18,7 @@
     }
   },
   "dependencies": {
+    "axios": "^0.20.0",
     "chalk": "^2.4.2",
     "commander": "^3.0.0",
     "fs-extra": "^8.1.0",
@@ -26,8 +27,7 @@
     "ora": "^3.4.0",
     "prettier": "^1.18.2",
     "progress": "^2.0.3",
-    "puppeteer-core": "^1.19.0",
-    "request": "^2.88.2"
+    "puppeteer-core": "^1.19.0"
   },
   "devDependencies": {
     "eslint": "^6.2.2",
