@@ -5,58 +5,14 @@ const chalk = require('chalk')
 const minimist = require('minimist')
 const ora = require('ora')
 const inquirer = require('inquirer')
-const fs = require('fs')
-const { ensureFileSync, ensureDirSync } = require('fs-extra')
-const axios = require('axios')
 const { config, mergeConfig } = require('./lib/config')
-
+const { downloadSong } = require('./lib/download')
 // 命令参数简写map
 const argMap = {
   o: 'output',
   O: 'origin',
   a: 'adapter',
   c: 'chrome'
-}
-
-async function downloadSong(answers) {
-  answers.forEach(async r => {
-    let reg = new RegExp('\\(', 'g')
-    let result,
-      index = undefined
-    // 根据左括号(截取
-    while ((result = reg.exec(r)) != null) {
-      index = reg.lastIndex
-    }
-    if (index === undefined) {
-      return ora('音乐数据暂时无法下载').fail()
-    }
-    const url = r.substring(index, r.length - 1)
-    const filePath = `${config.output}/${r.substring(0, index - 1)}.mp3`
-    // 创建目录
-    ensureDirSync(config.output)
-    // 创建文件名
-    ensureFileSync(filePath)
-    // 管道pipe流入
-    await toPipe(url, filePath)
-    if (answers.indexOf(r) === answers.length - 1) {
-      ora('音乐下载成功').succeed()
-    }
-  })
-}
-
-async function toPipe(url, filePath) {
-  // url: music下载路径   filePath: 文件路径
-  return new Promise(resolve => {
-    var readableStream = fs.createWriteStream(filePath)
-    axios({
-      method: 'get',
-      url,
-      responseType: 'stream' // 服务器响应的数据类型
-    }).then(res => {
-      res.data.pipe(readableStream)
-      resolve()
-    })
-  })
 }
 
 // 根据命令行参数执行解析下载等操作
@@ -88,16 +44,16 @@ module.exports = async function(args) {
       } else {
         // 有搜索结果
         try {
-          const answers = await inquirer.prompt([
+          const { answers } = await inquirer.prompt([
             {
               type: 'checkbox',
-              name: 'select',
+              name: 'answers',
               message: '按空格键选择或取消你要下载的歌曲，支持多选',
               choices: list.map(music => `${music.author}-${music.title}(${music.url})`),
               default: 0
             }
           ])
-          downloadSong(answers.select)
+          downloadSong(answers)
         } catch (error) {
           // do nothing
         }

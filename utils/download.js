@@ -1,9 +1,7 @@
-// 根据命令行的配置下载文件到指定的目录
-const request = require('../utils/axios')
+const axios = require('axios')
 const fs = require('fs')
-const finished = util.promisify(stream.finished);
 const { ensureFileSync, ensureDirSync } = require('fs-extra')
-const { config } = require('./config')
+const { config } = require('../lib/config')
 
 async function downloadSong(answers) {
   answers.forEach(async r => {
@@ -25,17 +23,24 @@ async function downloadSong(answers) {
     // 创建文件名
     ensureFileSync(filePath)
     // 管道pipe流入
-    await toPipe(url, filePath, musicName)
+    await toPipe(url, filePath)
   })
 }
 
-async function toPipe(url, filePath, musicName) {
+async function toPipe(url, filePath) {
   // url: music下载路径   filePath: 文件路径
+  return new Promise(resolve => {
     var readableStream = fs.createWriteStream(filePath)
-    const res = await request(url)
-    res.pipe(readableStream)
-    await finished(readableStream)
-    console.log(`✿  ${musicName} download success!`)
+    axios({
+      method: 'get',
+      url,
+      responseType: 'stream' // 服务器响应的数据类型
+    }).then(res => {
+      res.data.pipe(readableStream)
+      readableStream.end(`${musicName} download success!`)
+      resolve()
+    })
+  })
 }
 
 module.exports = {
