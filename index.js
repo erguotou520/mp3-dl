@@ -49,11 +49,20 @@ module.exports = async function(args) {
               type: 'checkbox',
               name: 'answers',
               message: '按空格键选择或取消你要下载的歌曲，支持多选',
-              choices: list.map(music => `${music.author}-${music.title}(${music.url})`),
+              choices: list.map(music => `${music.author}-${music.title}`),
               default: 0
             }
           ])
-          downloadSong(answers)
+          // 过滤下载歌曲
+          let downloadSongList = []
+          list.forEach(r => {
+            answers.forEach(answer => {
+              if (`${r.author}-${r.title}` === answer) {
+                downloadSongList.push(r)
+              }
+            })
+          })
+          await downloadSong(downloadSongList)
         } catch (error) {
           // do nothing
         }
