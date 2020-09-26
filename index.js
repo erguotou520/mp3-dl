@@ -5,7 +5,8 @@ const chalk = require('chalk')
 const minimist = require('minimist')
 const ora = require('ora')
 const inquirer = require('inquirer')
-
+const { config, mergeConfig } = require('./lib/config')
+const { downloadSong } = require('./lib/download')
 // 命令参数简写map
 const argMap = {
   o: 'output',
@@ -31,7 +32,7 @@ module.exports = async function(args) {
     // 多搜索内容用空格拼接
     const searchContent = argv._.join(' ')
     // 初始化配置
-    require('./lib/config').mergeConfig(argv)
+    mergeConfig(argv)
     // 搜索
     const { search, loadMore } = require('./lib/search')
     const spinner = ora('搜索中...').start()
@@ -43,15 +44,25 @@ module.exports = async function(args) {
       } else {
         // 有搜索结果
         try {
-          const answers = await inquirer.prompt([
+          const { answers } = await inquirer.prompt([
             {
-              type: 'rawlist',
-              name: 'select',
+              type: 'checkbox',
+              name: 'answers',
               message: '按空格键选择或取消你要下载的歌曲，支持多选',
-              choices: list.map(music => `${music.author}-${music.name}(${music.duration})`),
+              choices: list.map(music => `${music.author}-${music.title}`),
               default: 0
             }
           ])
+          // 过滤下载歌曲
+          let downloadSongList = []
+          list.forEach(r => {
+            answers.forEach(answer => {
+              if (`${r.author}-${r.title}` === answer) {
+                downloadSongList.push(r)
+              }
+            })
+          })
+          await downloadSong(downloadSongList)
         } catch (error) {
           // do nothing
         }
