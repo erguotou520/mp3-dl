@@ -5,7 +5,7 @@ const chalk = require('chalk')
 const minimist = require('minimist')
 const ora = require('ora')
 const inquirer = require('inquirer')
-const { config, mergeConfig } = require('./lib/config')
+const { config, mergeConfig, writeConfigFile } = require('./lib/config')
 const { downloadSong } = require('./lib/download')
 // 命令参数简写map
 const argMap = {
@@ -20,19 +20,34 @@ module.exports = async function(args) {
   const argv = minimist(args)
   if (validateArgv(argv)) {
     extendArgv(argv)
+    // 打印版本
+    if (argv.v || argv.version) {
+      return showVersion()
+    }
+    if (argv.o || argv.output) {
+      console.log(chalk.blue(`下载输出目录已更改为${argv.o}`))
+    }
+    if (argv.O || argv.origin) {
+      console.log(chalk.blue(`下载的网站来源已更改为${argv.O}`))
+    }
+    if (argv.a || argv.adapter) {
+      console.log(chalk.blue(`适配器已更改为${argv.a}`))
+    }
+    if (argv.c || argv.chrome) {
+      console.log(chalk.blue(`手动指定chrome的安装目录更改为${argv.c}`))
+    }
+    // 初始化配置
+    mergeConfig(argv)
+    // 保存文件
+    writeConfigFile()
     // 没有传搜索内容参数
-    if (!argv._) {
-      // 打印版本
-      if (argv.v || argv.version) {
-        return showVersion()
-      }
+    if (argv._.length === 0 || argv.h) {
       // 显示帮助
       return showHelp()
     }
     // 多搜索内容用空格拼接
     const searchContent = argv._.join(' ')
-    // 初始化配置
-    mergeConfig(argv)
+    console.log(searchContent)
     // 搜索
     const { search, loadMore } = require('./lib/search')
     const spinner = ora('搜索中...').start()
@@ -104,7 +119,7 @@ function showHelp() {
   -o /path/to/save 下载保存位置
   -O https://muc.cheshirex.com 下载网站来源
   -a default|mk|mm 适配器，根据网站决定
-  -c /path/to/chrome 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
+  -c "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
   --with-lrc 同时下载歌词
   --verbose 显示详细信息
 示例：
