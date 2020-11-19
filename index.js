@@ -18,6 +18,7 @@ const argMap = {
 // 根据命令行参数执行解析下载等操作
 module.exports = async function(args) {
   const argv = minimist(args)
+  console.log(argv)
   if (validateArgv(argv)) {
     extendArgv(argv)
     // 打印版本
@@ -45,7 +46,7 @@ module.exports = async function(args) {
       // 显示帮助
       return showHelp()
     }
-    // 多搜索内容用空格拼接
+    // 多搜索内容用空格拼接mmp
     const searchContent = argv._.join(' ')
     console.log(searchContent)
     // 搜索
@@ -77,7 +78,7 @@ module.exports = async function(args) {
               }
             })
           })
-          await downloadSong(downloadSongList)
+          await downloadSong(downloadSongList, argv.lrc)
         } catch (error) {
           // do nothing
         }
@@ -120,12 +121,13 @@ function showHelp() {
   -O https://muc.cheshirex.com 下载网站来源
   -a default|mk|mm 适配器，根据网站决定
   -c "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
-  --with-lrc 同时下载歌词
+  --lrc 同时下载歌词
   --verbose 显示详细信息
 示例：
   mp3-dl -h
   mp3-dl -v
-  mp3-dl 丑八怪 -o ~/Documents/Musics --write-lrc --verbose
+  mp3-dl 丑八怪 -o ~/Documents/Musics --lrc --verbose
+  mp3-dl -y
 `)
   )
 }
