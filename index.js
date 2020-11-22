@@ -37,6 +37,9 @@ module.exports = async function(args) {
     if (argv.c || argv.chrome) {
       console.log(chalk.blue(`手动指定chrome的安装目录更改为${argv.c}`))
     }
+    if (argv.y) {
+      console.log('正在为你默认下载第一个搜索的结果...')
+    }
     // 初始化配置
     mergeConfig(argv)
     // 保存文件
@@ -48,7 +51,6 @@ module.exports = async function(args) {
     }
     // 多搜索内容用空格拼接mmp
     const searchContent = argv._.join(' ')
-    console.log(searchContent)
     // 搜索
     const { search, loadMore } = require('./lib/search')
     const spinner = ora('搜索中...').start()
@@ -60,6 +62,10 @@ module.exports = async function(args) {
       } else {
         // 有搜索结果
         try {
+          if (argv.y) {
+            await downloadSong([list[0]], argv.lrc)
+            return
+          }
           const { answers } = await inquirer.prompt([
             {
               type: 'checkbox',
@@ -123,11 +129,12 @@ function showHelp() {
   -c "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
   --lrc 同时下载歌词
   --verbose 显示详细信息
+  -y 可以跳过选择 直接下载第一个搜索结果
 示例：
   mp3-dl -h
   mp3-dl -v
   mp3-dl 丑八怪 -o ~/Documents/Musics --lrc --verbose
-  mp3-dl -y
+  mp3-dl 丑八怪 -y
 `)
   )
 }
