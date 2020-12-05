@@ -21,34 +21,19 @@ module.exports = async function(args) {
   console.log(argv)
   if (validateArgv(argv)) {
     extendArgv(argv)
-    // 打印版本
-    if (argv.v || argv.version) {
-      return showVersion()
-    }
-    if (argv.o || argv.output) {
-      console.log(chalk.blue(`下载输出目录已更改为${argv.o}`))
-    }
-    if (argv.O || argv.origin) {
-      console.log(chalk.blue(`下载的网站来源已更改为${argv.O}`))
-    }
-    if (argv.a || argv.adapter) {
-      console.log(chalk.blue(`适配器已更改为${argv.a}`))
-    }
-    if (argv.c || argv.chrome) {
-      console.log(chalk.blue(`手动指定chrome的安装目录更改为${argv.c}`))
-    }
-    if (argv.y) {
-      console.log('正在为你默认下载第一个搜索的结果...')
-    }
-    // 初始化配置
-    mergeConfig(argv)
-    // 保存文件
-    writeConfigFile()
     // 没有传搜索内容参数
     if (argv._.length === 0 || argv.h) {
       // 显示帮助
       return showHelp()
     }
+    // 打印版本
+    if (argv.v || argv.version) {
+      return showVersion()
+    }
+    // 初始化配置
+    mergeConfig(argv)
+    // 保存文件
+    writeConfigFile()
     // 多搜索内容用空格拼接mmp
     const searchContent = argv._.join(' ')
     // 搜索
@@ -63,7 +48,7 @@ module.exports = async function(args) {
         // 有搜索结果
         try {
           if (argv.y) {
-            await downloadSong([list[0]], argv.lrc)
+            await downloadSong([list[0]], argv.y)
             return
           }
           const { answers } = await inquirer.prompt([
