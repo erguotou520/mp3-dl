@@ -5,7 +5,7 @@ const chalk = require('chalk')
 const minimist = require('minimist')
 const ora = require('ora')
 const inquirer = require('inquirer')
-const { config, mergeConfig } = require('./lib/config')
+const { config, mergeConfig, writeConfigFile } = require('./lib/config')
 const { downloadSong } = require('./lib/download')
 // 命令参数简写map
 const argMap = {
@@ -18,21 +18,24 @@ const argMap = {
 // 根据命令行参数执行解析下载等操作
 module.exports = async function(args) {
   const argv = minimist(args)
+  console.log(argv)
   if (validateArgv(argv)) {
     extendArgv(argv)
     // 没有传搜索内容参数
-    if (!argv._) {
-      // 打印版本
-      if (argv.v || argv.version) {
-        return showVersion()
-      }
+    if (argv._.length === 0 || argv.h) {
       // 显示帮助
       return showHelp()
     }
-    // 多搜索内容用空格拼接
-    const searchContent = argv._.join(' ')
+    // 打印版本
+    if (argv.v || argv.version) {
+      return showVersion()
+    }
     // 初始化配置
     mergeConfig(argv)
+    // 保存文件
+    writeConfigFile()
+    // 多搜索内容用空格拼接mmp
+    const searchContent = argv._.join(' ')
     // 搜索
     const { search, loadMore } = require('./lib/search')
     const spinner = ora('搜索中...').start()
@@ -44,6 +47,10 @@ module.exports = async function(args) {
       } else {
         // 有搜索结果
         try {
+          if (argv.y) {
+            await downloadSong([list[0]], argv.y)
+            return
+          }
           const { answers } = await inquirer.prompt([
             {
               type: 'checkbox',
@@ -62,7 +69,7 @@ module.exports = async function(args) {
               }
             })
           })
-          await downloadSong(downloadSongList)
+          await downloadSong(downloadSongList, argv.lrc)
         } catch (error) {
           // do nothing
         }
@@ -104,13 +111,15 @@ function showHelp() {
   -o /path/to/save 下载保存位置
   -O https://muc.cheshirex.com 下载网站来源
   -a default|mk|mm 适配器，根据网站决定
-  -c /path/to/chrome 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
-  --with-lrc 同时下载歌词
+  -c "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 如果自动查找chrome安装位置失败时需要手动指定chrome的安装目录
+  --lrc 同时下载歌词
   --verbose 显示详细信息
+  -y 可以跳过选择 直接下载第一个搜索结果
 示例：
   mp3-dl -h
   mp3-dl -v
-  mp3-dl 丑八怪 -o ~/Documents/Musics --write-lrc --verbose
+  mp3-dl 丑八怪 -o ~/Documents/Musics --lrc --verbose
+  mp3-dl 丑八怪 -y
 `)
   )
 }

@@ -27,7 +27,9 @@
     "ora": "^3.4.0",
     "prettier": "^1.18.2",
     "progress": "^2.0.3",
-    "puppeteer-core": "^1.19.0"
+    "puppeteer-core": "^1.19.0",
+    "stream": "^0.0.2",
+    "util": "^0.12.3"
   },
   "devDependencies": {
     "eslint": "^6.2.2",

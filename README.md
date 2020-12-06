@@ -18,7 +18,9 @@ mp3-dl -h
 # 显示当前版本
 mp3-dl -v
 # 下载“丑八怪”的mp3和歌词到指定目录并打印详细信息
-mp3-dl 丑八怪 -o ~/Documents/Musics --write-lrc --verbose
+mp3-dl 丑八怪 -o ~/Documents/Musics --lrc --verbose
+# 默认下载搜索到的第一个mp3
+mp3-dl 丑八怪 -y
 ```
 
 ## 安装方法
