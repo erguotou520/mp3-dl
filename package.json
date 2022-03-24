@@ -23,7 +23,7 @@
     "commander": "^3.0.0",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",
-    "minimist": "^1.2.3",
+    "minimist": "^1.2.6",
     "ora": "^3.4.0",
     "prettier": "^1.18.2",
     "progress": "^2.0.3",
